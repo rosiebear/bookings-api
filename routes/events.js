@@ -8,18 +8,33 @@ router.get('/', function(req, res, next) {
     })
 });
 
-router.get('/:title', function(req, res) {
-    Event.findOne({title: title}, function(err,event){
-        res.send(event)
-    })
-});
+router.route('/:id')
 
-router.put('/:title', function(req, res){
-    var title = req.params.title;
-    Event.findOneAndUpdate({title: title}, {maxAttendees: req.body}, function(){
-        res.end();
+    .get(function(req, res) {
+        Event.findById(req.params.id, function(err,event){
+            res.send(event)
+        })
+    })
+
+    .put(function(req, res){
+        Event.findById(req.params.id, function(err, event){
+            if (err) {
+                res.send(err);
+            }
+
+            if(!!event) {
+                event.title = req.body.title;
+
+                event.save(function(err){
+                    if(err) {
+                        res.send(err);
+                    }
+
+                    res.send(event)
+                });
+            }
+        })
     });
-});
 
 router.post('/', function(req, res) {
     console.log(req.body);
