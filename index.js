@@ -13,7 +13,9 @@ app.use(bodyParser.urlencoded({
 }));
 
 var eventRouter = require('./routes/events');
-app.use('/events', eventRouter);
+var calendarRouter = require('./routes/calendars');
+app.use('/calendars/:calendar/events', eventRouter);
+app.use('/calendars', calendarRouter);
 
 
 var server = app.listen(3000, function(){
