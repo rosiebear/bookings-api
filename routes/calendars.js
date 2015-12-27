@@ -12,7 +12,6 @@ router.param('calendar', function(req, res, next, id) {
         if (!calendar) { return next(new Error("can't find calendar")); }
 
         req.calendar = calendar;
-        console.log(req.calendar);
         return next();
     });
 });
@@ -24,7 +23,6 @@ router.param('event', function(req, res, next, id) {
     query.exec(function (err, event){
         if (err) { return next(err); }
         if (!event) { return next(new Error("can't find event")); }
-
         req.event = event;
         return next();
     });
@@ -74,9 +72,13 @@ router.route('/:calendar')
 
 router.route('/:calendar/events/')
     .get(function(req, res) {
-        Event.find(function(err,events){
-            res.send(events)
-        })
+        Calendar
+        .findById(req.params.calendar)
+        .populate('events')
+        .exec(function (err, calendar) {
+            if (err) return handleError(err);
+            res.send(calendar);
+        });
     })
 
     .post(function(req, res, next) {
@@ -87,10 +89,18 @@ router.route('/:calendar/events/')
             if(err){ return next(err); }
 
             req.calendar.events.push(event);
-            req.calendar.save(function(err, event) {
-                if(err){ return next(err); }
+            req.calendar.save(function(err, calendar) {
+                if(err){ return next(err);
+            }
 
-                res.json(event);
+            Calendar
+                .findById(calendar)
+                .populate('events')
+                .exec(function (err, calendar) {
+                    if (err) return handleError(err);
+                    res.send(calendar);
+                });
+
             });
         });
     });
@@ -98,33 +108,34 @@ router.route('/:calendar/events/')
 
 router.route('/:calendar/events/:event')
     .get(function(req, res) {
-        Event.findById(req.params.event, function(err,event){
-            res.send(event)
-        })
+        res.send(req.event)
     })
+
+
     .put(function(req, res){
-        Event.findById(req.params.event, function(err, event){
-            if (err) {
-                res.send(err);
-            }
-
-            if(!!event) {
-                for(var k in req.body) event[k]=req.body[k];
-
-                event.save(function(err){
-                    if(err) {
-                        res.send(err);
-                    }
-
-                    res.send(event)
-                });
-            }
-        })
+        var event = req.event;
+        for(var k in req.body) event[k]=req.body[k];
+        event.save(function(err){
+            if(err) { res.send(err); }
+            res.send(event)
+        });
     })
+
     .delete(function(req, res) {
+
+        var index = req.calendar.events.indexOf(req.event._id);
+        if (index > -1) {
+            req.calendar.events.splice(index, 1);
+        }
+        req.calendar.save(function(err) {
+            if (err) {
+                return next(err);
+            }
+        });
+
         Event.remove({
-            _id: req.params.event
-        }, function(err, bear) {
+            _id: req.event._id
+        }, function(err) {
             if (err)
                 res.send(err);
 
