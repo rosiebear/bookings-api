@@ -1,20 +1,17 @@
 var express = require('express');
+var controller = require('./calendar.controller');
+
 var router = express.Router();
-var Calendar = require('../models/Calendar').Calendar;
-var Event = require('../models/Event').Event;
+
+var Calendar = require('./calendar.model').Calendar;
+var Event = require('../../models/Event').Event;
 
 // Preload calendar objects on routes with ':calendar'
-router.param('calendar', function(req, res, next, id) {
-    var query = Calendar.findById(id);
-
-    query.exec(function (err, calendar){
-        if (err) { return next(err); }
-        if (!calendar) { return next(new Error("can't find calendar")); }
-
-        req.calendar = calendar;
-        return next();
-    });
-});
+//router.param('calendar', function(req, res, next) {
+//    var calendar = controller.show(req, res);
+//    req.calendar = calendar;
+//    return next();
+//});
 
 // Preload event objects on routes with ':event'
 router.param('event', function(req, res, next, id) {
@@ -36,30 +33,23 @@ router.route('/')
         })
     })
     .post(function(req, res) {
-        var calendar = new Calendar(req.body);
-        calendar.save(function(err, calendar){
-            if(err){ return next(err); }
-            res.send(calendar);
+        Calendar.create(req.body, function (err, calendar) {
+            if (err) return handleError(err);
+            return res.json(201, calendar);
         });
     });
 
+router.get('/:calendar', controller.show);
+
 router.route('/:calendar')
-    .get(function(req, res) {
-        Calendar.findById(req.params.calendar, function(err, calendar){
-            res.send(calendar)
-        })
-    })
     .put(function(req, res){
-        Calendar.findById(req.params.calendar, function(err, calendar){
-            if (err) { res.send(err); }
-            if(!!calendar) {
-                for(var k in req.body) calendar[k]=req.body[k];
-                calendar.save(function(err){
-                    if(err) { res.send(err); }
-                    res.send(calendar)
-                });
-            }
-        })
+        if(!!req.calendar) {
+            for(var k in req.body) req.calendar[k]=req.body[k];
+            req.calendar.save(function(err){
+                if(err) { res.send(err); }
+                res.send(req.calendar)
+            });
+        }
     })
     .delete(function(req, res) {
         Calendar.remove({
@@ -72,36 +62,24 @@ router.route('/:calendar')
 
 router.route('/:calendar/events/')
     .get(function(req, res) {
-        Calendar
-        .findById(req.params.calendar)
-        .populate('events')
-        .exec(function (err, calendar) {
-            if (err) return handleError(err);
-            res.send(calendar);
-        });
+        res.send(req.calendar.events)
     })
-
     .post(function(req, res, next) {
         var event = new Event(req.body);
         event.calendar = req.calendar;
 
-        event.save(function(err, event){
-            if(err){ return next(err); }
-
-            req.calendar.events.push(event);
-            req.calendar.save(function(err, calendar) {
-                if(err){ return next(err);
+        event.save(function (err, event) {
+            if (err) {
+                return next(err);
             }
 
-            Calendar
-                .findById(calendar)
-                .populate('events')
-                .exec(function (err, calendar) {
-                    if (err) return handleError(err);
-                    res.send(calendar);
-                });
-
+            req.calendar.events.push(event);
+            req.calendar.save(function (err, calendar) {
+                if (err) {
+                    return next(err);
+                }
             });
+            res.send(event);
         });
     });
 
@@ -110,8 +88,6 @@ router.route('/:calendar/events/:event')
     .get(function(req, res) {
         res.send(req.event)
     })
-
-
     .put(function(req, res){
         var event = req.event;
         for(var k in req.body) event[k]=req.body[k];
@@ -120,9 +96,7 @@ router.route('/:calendar/events/:event')
             res.send(event)
         });
     })
-
     .delete(function(req, res) {
-
         var index = req.calendar.events.indexOf(req.event._id);
         if (index > -1) {
             req.calendar.events.splice(index, 1);
@@ -132,13 +106,11 @@ router.route('/:calendar/events/:event')
                 return next(err);
             }
         });
-
         Event.remove({
             _id: req.event._id
         }, function(err) {
             if (err)
                 res.send(err);
-
             res.json({ message: 'Successfully deleted' });
         });
     });
