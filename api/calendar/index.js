@@ -25,40 +25,11 @@ router.param('event', function(req, res, next, id) {
     });
 });
 
-
-router.route('/')
-    .get(function(req, res) {
-        Calendar.find(function(err, calendars){
-            res.send(calendars)
-        })
-    })
-    .post(function(req, res) {
-        Calendar.create(req.body, function (err, calendar) {
-            if (err) return handleError(err);
-            return res.json(201, calendar);
-        });
-    });
-
-router.get('/:calendar', controller.show);
-
-router.route('/:calendar')
-    .put(function(req, res){
-        if(!!req.calendar) {
-            for(var k in req.body) req.calendar[k]=req.body[k];
-            req.calendar.save(function(err){
-                if(err) { res.send(err); }
-                res.send(req.calendar)
-            });
-        }
-    })
-    .delete(function(req, res) {
-        Calendar.remove({
-            _id: req.params.calendar
-        }, function(err, calendar) {
-            if (err) { res.send(err);}
-            res.json({ message: calendar + 'Successfully deleted' });
-        });
-    });
+router.get('/', controller.index);
+router.post('/', controller.create);
+router.get('/:calendar_id', controller.show);
+router.put('/:calendar_id', controller.update);
+router.delete('/:calendar_id', controller.destroy);
 
 router.route('/:calendar/events/')
     .get(function(req, res) {
