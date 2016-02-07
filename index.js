@@ -16,6 +16,6 @@ var calendarRouter = require('./api/index');
 app.use('/calendars', calendarRouter);
 
 
-var server = app.listen(3000, function(){
+var server = app.listen(3001, function(){
     console.log('Server running at http://localhost:' + server.address().port)
 });
