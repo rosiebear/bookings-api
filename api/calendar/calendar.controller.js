@@ -11,6 +11,7 @@
 
 var Event = require('../event/event.model').Event;
 var Calendar = require('./calendar.model').Calendar;
+var moment = require('moment');
 
 exports.index = function(req, res) {
     Calendar.find(function(err, calendars){
@@ -35,6 +36,7 @@ exports.show = function(req, res, next) {
 exports.update = function(req, res) {
     if(!!req.calendar) {
         for (var k in req.body) req.calendar[k] = req.body[k];
+        req.calendar['dateUpdated'] = moment().toDate();
         req.calendar.save(function(err, calendar) {
             if (err) return handleError(res, err);
             return res.status(200).json(calendar);
@@ -57,5 +59,5 @@ exports.destroy = function (req, res) {
 };
 
 function handleError(res, err) {
-    return res.send(500, err);
+    return res.status(500).send(err);
 }
