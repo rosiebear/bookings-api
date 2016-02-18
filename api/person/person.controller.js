@@ -9,52 +9,52 @@
 
 'use strict';
 
-var Event = require('../event/event.model').Event;
-var Calendar = require('./calendar.model').Calendar;
+var Person = require('./person.model').Person;
 var moment = require('moment');
 
 exports.index = function(req, res) {
-    Calendar.find(function(err, calendars){
+    Person.find(function(err, persons){
         if (err) return handleError(res, err);
-        res.status(200).json(calendars);
+        res.status(200).json(persons);
     });
 };
 
 exports.create = function(req, res) {
-    Calendar.create(req.body, function (err, calendar) {
+    Person.create(req.body, function (err, person) {
         if (err) return handleError(err);
-        return res.status(201).json(calendar);
+        return res.status(201).json(person);
     });
 };
 
 exports.show = function(req, res) {
-    req.calendar.populate('events', function(err, calendar) {
-        res.status(200).json(calendar);
-    });
+    if(!!req.person) {
+        return res.status(200).json(req.person);
+    };
 };
 
 exports.update = function(req, res) {
-    if(!!req.calendar) {
-        for (var k in req.body) req.calendar[k] = req.body[k];
-        req.calendar['dateUpdated'] = moment().toDate();
-        req.calendar.save(function(err, calendar) {
+    if(!!req.person) {
+        for (var k in req.body) req.person[k] = req.body[k];
+        req.person['dateUpdated'] = moment().toDate();
+        req.person.save(function(err, person) {
             if (err) return handleError(res, err);
-            return res.status(200).json(calendar);
+            return res.status(200).json(person);
         });
     }
 };
 
 exports.destroy = function (req, res) {
-    Calendar.remove({
-        _id: req.calendar._id
-    }, function(err, calendar) {
+    Person.remove({
+        _id: req.person._id
+    }, function(err, person) {
         if (err) return handleError(res, err);
-        Event.remove({
-            calendar: req.calendar._id
+        Person.remove({
+            person: req.person._id
+            //need to remove from event
         }, function(err) {
             if (err) return handleError(res, err);
         })
-        return res.status(200).json(calendar);
+        return res.status(200).json(person);
     });
 };
 

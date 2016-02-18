@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var moment = require('moment');
+var deepPopulate = require('mongoose-deep-populate')(mongoose);
 
 var calendarSchema = new mongoose.Schema({
 
@@ -24,4 +25,5 @@ var calendarSchema = new mongoose.Schema({
     ]
 });
 
+calendarSchema.plugin(deepPopulate);
 exports.Calendar = mongoose.model('Calendar', calendarSchema);

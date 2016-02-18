@@ -12,8 +12,12 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-var calendarRouter = require('./api/index');
-app.use('/calendars', calendarRouter);
+var person = require('./api/person-api');
+app.use('/api/v1/person', person);
+
+
+var calendar = require('./api/calendar-api');
+app.use('/api/v1/calendar', calendar);
 
 
 var server = app.listen(3001, function(){

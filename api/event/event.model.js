@@ -1,18 +1,15 @@
 var mongoose = require('mongoose');
 var moment = require('moment');
+var addressSchema = require('../address/address.model').addressSchema;
 
 var defaultDate = {
     'startDate': moment().toDate(),
     'endDate': moment().add(1, 'hours').toDate()
 };
 
-var dateStampSchema = {
-    startDate: {
-        type:Date
-    },
-    endDate: {
-        type:Date
-    }
+var eventDateSchema = {
+    startDate:Date,
+    endDate:Date
 };
 
 function dateValidator(value) {
@@ -30,15 +27,18 @@ var eventSchema = new mongoose.Schema({
     },
     host: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Person'
+        ref: 'Person',
+        required: true
     },
+    location: addressSchema,
+    tags: [String],
     maxAttendees: {
         type: Number,
         default: 1,
         required: true
     },
     dateInfo: {
-        type:dateStampSchema,
+        type: eventDateSchema,
         validate: [dateValidator, 'Start date must be before end date'],
         required: true,
         default: defaultDate

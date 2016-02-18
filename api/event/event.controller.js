@@ -13,7 +13,7 @@ var Event = require('./event.model').Event;
 var Calendar = require('../calendar/calendar.model').Calendar;
 
 exports.index = function(req, res) {
-    req.calendar.populate('events', function(err, calendar) {
+    req.calendar.deepPopulate('events.host', function(err, calendar) {
         return res.status(200).json(calendar.events);
     });
 };
@@ -24,7 +24,6 @@ exports.create = function(req, res) {
 
     event.save(function (err, event) {
         if (err) return handleError(res, err);
-
         req.calendar.events.push(event);
         req.calendar.save(function (err) {
             if (err) return handleError(res, err);
@@ -35,7 +34,9 @@ exports.create = function(req, res) {
 };
 
 exports.show = function(req, res) {
-    return res.status(200).json(req.event);
+    req.event.populate('host', function(err, event) {
+        res.status(200).json(event);
+    });
 };
 
 exports.update = function(req, res) {

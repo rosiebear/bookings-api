@@ -37,11 +37,12 @@ router.get('/:calendar', calendar.show);
 router.put('/:calendar', calendar.update);
 router.delete('/:calendar', calendar.destroy);
 
-router.get('/:calendar/events/', event.index);
-router.post('/:calendar/events/', event.create);
-router.get('/:calendar/events/:event', event.show);
-router.put('/:calendar/events/:event', event.update);
-router.delete('/:calendar/events/:event', event.destroy);
+router.get('/:calendar/event/', event.index);
+router.post('/:calendar/event/', event.create);
+router.get('/:calendar/event/:event', event.show);
+router.put('/:calendar/event/:event', event.update);
+router.delete('/:calendar/event/:event', event.destroy);
+
 
 module.exports = router;
 

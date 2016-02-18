@@ -16,6 +16,8 @@
   "dependencies": {
     "body-parser": "^1.14.1",
     "cors": "^2.7.1",
-    "mongoose": "^4.3.3"
+    "mongoose": "^4.4.3",
+    "mongoose-deep-populate": "^2.0.3",
+    "mongoose-role": "^1.2.0"
   }
 }
