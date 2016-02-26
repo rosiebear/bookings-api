@@ -14,14 +14,18 @@ var moment = require('moment');
 
 exports.index = function(req, res) {
     Person.find(function(err, persons){
-        if (err) return handleError(res, err);
-        res.status(200).json(persons);
+        if (err) {
+            return res.status(500).json({ error: err});
+        }
+        return res.status(200).json(persons);
     });
 };
 
 exports.create = function(req, res) {
     Person.create(req.body, function (err, person) {
-        if (err) return handleError(err);
+        if (err) {
+            return res.status(500).json({ error: err});
+        }
         return res.status(201).json(person);
     });
 };
@@ -29,7 +33,7 @@ exports.create = function(req, res) {
 exports.show = function(req, res) {
     if(!!req.person) {
         return res.status(200).json(req.person);
-    };
+    }
 };
 
 exports.update = function(req, res) {
@@ -37,7 +41,9 @@ exports.update = function(req, res) {
         for (var k in req.body) req.person[k] = req.body[k];
         req.person['dateUpdated'] = moment().toDate();
         req.person.save(function(err, person) {
-            if (err) return handleError(res, err);
+            if (err) {
+                return res.status(500).json({ error: err});
+            }
             return res.status(200).json(person);
         });
     }
@@ -50,14 +56,12 @@ exports.destroy = function (req, res) {
         if (err) return handleError(res, err);
         Person.remove({
             person: req.person._id
-            //need to remove from event
+
+            //TODO: need to remove from event
+
         }, function(err) {
-            if (err) return handleError(res, err);
-        })
+            return res.status(500).json({ error: err});
+        });
         return res.status(200).json(person);
     });
 };
-
-function handleError(res, err) {
-    return res.status(500).send(err);
-}

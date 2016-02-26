@@ -3,7 +3,6 @@ var moment = require('moment');
 var deepPopulate = require('mongoose-deep-populate')(mongoose);
 
 var calendarSchema = new mongoose.Schema({
-
     description: String,
     title: {
         type: String,

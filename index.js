@@ -11,6 +11,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+app.use(errorHandler);
+
+function errorHandler(err, req, res, next) {
+    res.status(500);
+    res.json({ error: err });
+}
 
 var person = require('./api/person-api');
 app.use('/api/v1/person', person);

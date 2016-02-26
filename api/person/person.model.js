@@ -24,7 +24,13 @@ var personSchema = new mongoose.Schema({
     dateUpdate: {
         default: moment().toDate(),
         type: Date
-    }
+    },
+    events:    [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Event'
+        }
+    ]
 });
 
 personSchema.plugin(require('mongoose-role'), {

@@ -3,7 +3,6 @@ var calendar = require('./calendar/calendar.controller.js');
 var event = require('./event/event.controller.js');
 var Calendar = require('./calendar/calendar.model').Calendar;
 var Event = require('./event/event.model').Event;
-
 var router = express.Router();
 
 // Preload calendar objects on routes with ':calendar'
@@ -37,8 +36,8 @@ router.get('/:calendar', calendar.show);
 router.put('/:calendar', calendar.update);
 router.delete('/:calendar', calendar.destroy);
 
-router.get('/:calendar/event/', event.index);
-router.post('/:calendar/event/', event.create);
+router.get('/:calendar/event', event.index);
+router.post('/:calendar/event', event.create);
 router.get('/:calendar/event/:event', event.show);
 router.put('/:calendar/event/:event', event.update);
 router.delete('/:calendar/event/:event', event.destroy);

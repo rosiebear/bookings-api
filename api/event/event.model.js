@@ -19,7 +19,8 @@ function dateValidator(value) {
 var eventSchema = new mongoose.Schema({
     calendar: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Calendar'
+        ref: 'Calendar',
+        required: true
     },
     title: {
         type: String,
